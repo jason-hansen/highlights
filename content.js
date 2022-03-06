@@ -3,17 +3,15 @@ window.addEventListener("mouseup", function (event) {
     var text = "";
     if (window.getSelection) {
         text = window.getSelection().toString();
-        const startIndex = document.body.innerText.indexOf(text);
-        const endIndex = startIndex + text.length;
-        console.log(startIndex, endIndex);
-        // expand until punctuation or space... regex?
-        while (new RegExp(/[^A-Z]/, 'ig').test(document.body.innerText.charAt(startIndex))) {
+        var startIndex = document.body.innerText.indexOf(text);
+        var endIndex = startIndex + text.length;
+        while (new RegExp(/[a-zA-Z0-9]/, 'g').test(document.body.innerText.charAt(startIndex))) {
             startIndex--;
         }
-        while (new RegExp(/[^A-Z]/, 'ig').test(document.body.innerText.charAt(endIndex))) {
+        while (new RegExp(/[a-zA-Z0-9]/, 'g').test(document.body.innerText.charAt(endIndex))) {
             endIndex++;
         }
-        console.log(startIndex, endIndex);
+        text = document.body.innerText.substring(startIndex, endIndex); // TODO this might have an off by one error
     }
     else if (document.selection && document.selection.type != "Control") { // idk what this does...
         text = document.selection.createRange().text;

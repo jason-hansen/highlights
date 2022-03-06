@@ -59,8 +59,8 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
         console.log(`Local Storage Updated:`
             + `\n\tkey: ${key}`
-            + `\n\tnew value: ${newValue}`
-            + `\n\told value: ${oldValue}`);
+            + `\n\told value: ${oldValue}`
+            + `\n\tnew value: ${newValue}`);
 
         // send new value to frontend to do the highlighting
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
