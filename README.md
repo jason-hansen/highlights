@@ -1,12 +1,12 @@
-~ HIGHLIGHTS ~
-Jason Hansen
-
-ABOUT
+## HIGHLIGHTS
+&nbsp;
+## ABOUT
+___
 A Chrome Extension to persist a user's highlights for web articles.
 
-ROADMAP
-
-VERSION 1
+&nbsp;
+## TODOs (for version 1)
+___
 - double clicking in a text input triggers the extension...
     - maybe something with selection type RANGE/CONTROL/INPUT?
     - turn on/off from the popup?
@@ -16,13 +16,13 @@ VERSION 1
 - coloring
     - add some margin to the highlight color
     - add some color opacity to the highlight color?
-- have selection generalize/expand until punctuation or spaces
 - work on deleting if the highlight is the same
 - consolidate logging into the backend? Or at least don't just let them die in the popup.js?
 - beef up readme with how-to, style, icon attribution, etc
-- post to github
 
-VERSION 2
+&nbsp;
+## ROADMAP (for version 2)
+___
 - JSON of highlight: text, color, location, note
     - unique colors based on picker
     - ability to add notes to highlights
