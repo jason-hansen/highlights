@@ -1,0 +1,28 @@
+{
+    "name": "Highlights",
+    "description": "A Chrome Extension to persist a user's highlights and notes for web articles.",
+    "version": "0.1.0",
+    "manifest_version": 3,
+    "icons": {
+        "128": "/images/icon-128x128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "128": "/images/icon-128x128.png"
+        }
+    },
+    "options_page": "options.html",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "tabs"
+    ],
+    "host_permissions": [
+        "https://text.npr.org/*"
+    ]
+}
