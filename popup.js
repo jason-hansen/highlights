@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    var colorpicker = document.getElementById('colorpicker');
+    colorpicker.addEventListener('change', () => {
+        // document.body.style.backgroundColor = colorpicker.value;
+        console.log(colorpicker.value);
+    });
+
     var clearUrlHighlightsButton = document.getElementById('clear-url-highlights-button');
     clearUrlHighlightsButton.addEventListener('click', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
