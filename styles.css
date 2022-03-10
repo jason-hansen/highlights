@@ -1,0 +1,133 @@
+:root {
+    --yellow: #FDB92C;
+    --darkblue: #152D51;
+    --blue: #3066B9;
+    --white: #ffffff;
+    --highlight: #e8ce97;
+}
+
+.mt5 {
+    margin-top: 5px;
+}
+
+.mr10 {
+    margin-right: 10px;
+}
+
+.ml10 {
+    margin-left: 10px;
+}
+
+.mtb10 {
+    margin: 10px 0;
+}
+
+.container {
+    min-height: 500px;
+    min-width: 300px;
+    background-color: var(--darkblue);
+    border-style: solid;
+    border-width: 3px;
+    border-color: var(--blue);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    color: var(--white);
+}
+
+.title {
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+
+/* TODO move the slider css to another file? */
+.onoff {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cccccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--white);
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: var(--blue);
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px var(--blue);
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+#colorpicker {
+    height: 40px;
+    width: 100%;
+    background-color: var(--blue);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.btn {
+    font-size: 14px !important;
+    margin: 20px 10px !important;
+}
