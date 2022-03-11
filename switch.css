@@ -1,6 +1,6 @@
 .onoff {
     font-size: 20px;
-    font-family: "Lilita One", serif;
+    font-family: "Bree Serif", serif;
 
     display: flex;
     flex-direction: row;
@@ -45,7 +45,7 @@
 }
 
 input:checked+.slider {
-    background-color: #FECB66;
+    background-color: #FEEE35;
 }
 
 input:checked+.slider:before {

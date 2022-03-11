@@ -7,6 +7,7 @@ A Chrome Extension to persist a user's highlights for web articles.
 &nbsp;
 ## TODOs (for version 1)
 ___
+- figure out how to view the chrome.storage.local stuff... maybe it's chrome.storage.sync?
 - make popup.html the settings page
     - color picker functionality to actually persist the chosen color (or default)
     - iterate over that page's highlights

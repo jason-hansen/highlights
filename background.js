@@ -28,6 +28,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 // listen for messages from content.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     // console.log(sender.tab ? "from a content script: " + sender.tab.url : "from the extension");
+
     // message method: persist-highlight
     if (message.method === "persist-highlight") {
         const domain = sender.tab.url;

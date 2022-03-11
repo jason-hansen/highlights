@@ -6,11 +6,10 @@
     --gray: #cccccc;
     --black: #000000;
 
+    --yellow: #FEEE35;
+    --blue: #1AA0E5;
     --highlight: #e8ce97;
     --highlight-label: var(--black);
-    /* --yellow2: #FEB92C; */
-    --yellow: #FECB66;
-
     /* --highlight: #e8ce97;
     --highlight-label: var(--black); */
 }

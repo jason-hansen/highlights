@@ -2,9 +2,10 @@
     "name": "Highlights",
     "description": "A Chrome Extension to persist a user's highlights and notes for web articles.",
     "version": "0.1.0",
+    "author": "Jason Hansen https://github.com/jason-hansen",
     "manifest_version": 3,
     "icons": {
-        "128": "/images/icon-128x128_3.png"
+        "128": "/images/icon-128x128-h.png"
     },
     "background": {
         "service_worker": "background.js"
@@ -12,7 +13,7 @@
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
-            "128": "/images/icon-128x128_3.png"
+            "128": "/images/icon-128x128-h.png"
         }
     },
     "options_page": "options.html",
