@@ -3,36 +3,38 @@
 
 <head>
     <script type="text/javascript" src="popup.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="colors.css">
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="switch.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lilita+One">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
 <body class="container">
 
-    <div class="title">HIGHLIGHTS</div>
+    <div class="title-container">
+        <div id="title" class="title">
+            Highlights
+        </div>
+        <img class="logo" src="images/icon-128x128_3.png" alt="icon">
+    </div>
 
-    <div class="onoff mtb10">
-        <span class="mt5 mr10">OFF</span>
+    <div class="onoff mtb15">
+        <span class="mt2 mr10">Off</span>
         <label class="switch">
             <input type="checkbox">
             <span class="slider round"></span>
         </label>
-        <span class="mt5 ml10">ON</span>
+        <span class="mt2 ml10">On</span>
     </div>
 
-    <!-- <label for="colorpicker">Highlight Color:</label> -->
-    <input type="color" id="colorpicker" value="#e8ce97" class="mtb10">
-    <div class="button-container">
-        <button id='clear-url-highlights-button' class="btn btn-primary mtb10">
-            Clear page &nbsp;highlights
-        </button>
-        <button id='clear-all-highlights-button' class="btn btn-primary mtb10">
-            Clear all highlights
-        </button>
-    </div>
+    <label id="colorpicker-container" for="colorpicker">
+        <div id="colorpicker-label">Choose highlight color</div>
+        <input id="colorpicker" type="color">
+    </label>
 
-    <div class="mtb5">
+    <div>
         <div>Page Highlights:</div>
         <ul>
             <li>"Test test test test test"</li>
@@ -42,10 +44,23 @@
         </ul>
     </div>
 
-    <div class="mtb5">
-        <div>created by: Jason Hansen</div>
-        <a href="https://www.flaticon.com/free-icons/highlight" title="highlight icons">
-            icon by kmg design - Flaticon
+    <div class="button-container">
+        <button id='clear-url-highlights-button' class="btn">
+            Clear page highlights
+        </button>
+        <button id='clear-all-highlights-button' class="btn">
+            Clear all highlights
+        </button>
+    </div>
+
+    <div class="footer">
+        <div>
+            created by Jason Hansen
+        </div>
+    </div>
+    <div class="footer">
+        <a href="https://www.flaticon.com/authors/mavadee">
+            icon by mavadee
         </a>
     </div>
 </body>

@@ -27,10 +27,13 @@ window.addEventListener("mouseup", function (event) {
 chrome.runtime.onMessage.addListener(
     function (message, sender, sendResponse) {
         // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
+        var highlightColor = getComputedStyle(document.documentElement).getPropertyValue('--highlight').trim();
+        highlightColor = highlightColor ? highlightColor : '#e7cd97';
+
         if (message.method === "updated-highlight-list") {
             if (message && message.data) {
                 message.data.forEach((highlight) => {
-                    const hl = `<span style='background-color: #e8ce97'>${highlight}</span>`;
+                    const hl = `<span style='background-color: ${highlightColor}; padding-top: 2.5px; padding-bottom: 2.5px;'>${highlight}</span>`;
                     document.body.innerHTML = document.body.innerHTML.replace(new RegExp(highlight, 'g'), hl);
                 });
             }

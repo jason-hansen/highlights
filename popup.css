@@ -1,0 +1,100 @@
+.mt2 {
+    margin-top: 2px;
+}
+
+.mr10 {
+    margin-right: 10px;
+}
+
+.ml10 {
+    margin-left: 10px;
+}
+
+.mtb15 {
+    margin: 15px 0;
+}
+
+.footer {
+    margin-bottom: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.container {
+    min-height: 500px;
+    min-width: 400px;
+
+    color: var(--white);
+    font-size: 14px;
+
+    border-style: solid;
+    border-width: 4px;
+    border-radius: 5px;
+    border-color: var(--lighter);
+
+    background: var(--darker);
+}
+
+.title-container {
+    background-color: var(--lighter);
+
+    margin: 0px -15px 15px -15px;
+    padding-bottom: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.title {
+    font-size: 30px;
+    font-family: "Lilita One", serif;
+    color: var(--white);
+}
+
+.logo {
+    padding-left: 5px;
+    height: 45px;
+}
+
+#colorpicker-container {
+    height: 40px;
+    width: 100%;
+
+    color: var(--highlight-label);
+    background-color: var(--highlight);
+
+    border-radius: 34px;
+
+    cursor: pointer;
+}
+
+#colorpicker-label {
+    padding-top: 8px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#colorpicker {
+    visibility: hidden;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+    margin-bottom: 80px;
+}
+
+.btn {
+    background-color: var(--lighter) !important;
+    color: var(--white) !important;
+
+    font-size: 14px !important;
+    margin: 10px 10px !important;
+}
