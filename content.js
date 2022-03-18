@@ -3,6 +3,7 @@ window.addEventListener("mouseup", function (event) {
     var text = "";
     if (isTextSelectionRange()) {
         text = window.getSelection().toString();
+
         if (!new RegExp(/[a-zA-Z0-9]/, 'g').test(text)) {
             return;
         }
@@ -15,11 +16,18 @@ window.addEventListener("mouseup", function (event) {
 
     // sending message to background.js
     if (text.length > 0) {
-        var message = {
-            method: "persist-highlight",
-            selection: text
-        };
-        chrome.runtime.sendMessage(message);
+        chrome.storage.local.get(['isHighlighting'], function (result) {
+            if (result.isHighlighting) {
+                var message = {
+                    method: "persist-highlight",
+                    selection: text
+                };
+                chrome.runtime.sendMessage(message);
+            } else {
+                console.log('highlighting is currently off for this url "' + text + '"');
+                return;
+            }
+        });
     }
 });
 
@@ -40,6 +48,13 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
+
+// HELPERS ---------------------------------------------------------------
+function isHighlightingOn() {
+    chrome.storage.local.get(['isHighlighting'], function (result) {
+        return result.isHighlighting ? true : false;
+    });
+}
 
 function expandSelectionToWhitespace(text, html) {
     var startIndex = document.body.innerText.indexOf(text);

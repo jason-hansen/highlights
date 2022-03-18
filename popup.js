@@ -1,6 +1,11 @@
+var isHighlightingOn;
+chrome.storage.local.get(['isHighlighting'], function (result) {
+    isHighlightingOn = result.isHighlighting ? true : false;
+    console.log("on load, isHighlightingOn:", isHighlightingOn);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const colorpicker = document.getElementById('colorpicker');
-    // const popupTitle = document.getElementById('title');
     const colorpickerContainer = document.getElementById('colorpicker-container');
     const colorpickerLabel = document.getElementById('colorpicker-label');
 
@@ -11,15 +16,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 highlightColor,
                 getComputedStyle(document.documentElement).getPropertyValue('--white').trim(),
                 getComputedStyle(document.documentElement).getPropertyValue('--black').trim());
-        // popupTitle.style.color = highlightColor;
         colorpickerContainer.style.backgroundColor = highlightColor;
         colorpickerLabel.style.color = highlightLabelColor;
 
         // TODO persist these?
         document.documentElement.style.setProperty('--highlight', highlightColor);
         document.documentElement.style.setProperty('--highlight-label', highlightLabelColor);
-
         console.log(highlightColor);
+    });
+
+    var onOffSwitch = document.getElementById('onoff-switch');
+    onOffSwitch.checked = isHighlightingOn;
+    onOffSwitch.addEventListener('change', () => {
+        var message = {
+            method: "onoff-switch",
+            value: onOffSwitch.checked
+        };
+        chrome.runtime.sendMessage(message, (response) => {
+            chrome.storage.local.get(['isHighlighting'], function (result) {
+                onOffSwitch.checked = result.isHighlighting;
+            });
+        });
     });
 
     const clearUrlHighlightsButton = document.getElementById('clear-url-highlights-button');
@@ -36,6 +53,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// listen for messages from background.js
+chrome.runtime.onMessage.addListener(
+    function (message, sender, sendResponse) {
+        // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
+        if (message.method === "updated-highlight-list") {
+            if (message && message.data) {
+                console.log(message.data);
+            }
+        }
+    }
+);
+
+// HELPERS ---------------------------------------------------------------
+function isHighlightingOn() {
+    chrome.storage.local.get(['isHighlighting'], function (result) {
+        console.log(result.isHighlighting);
+        return result.isHighlighting ? true : false;
+    });
+}
 
 function clearUrlHighlights(url, tabId) {
     chrome.storage.local.remove([url], () => {

@@ -11,16 +11,28 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         });
 
         // send existing highlights to content.js
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const domain = tabs[0].url;
-            chrome.storage.local.get([domain], function (result) {
-                result[domain] ??= [];
-                var message = {
-                    method: 'updated-highlight-list',
-                    data: result[domain]
-                };
-                chrome.tabs.sendMessage(tabs[0].id, message);
-            });
+        chrome.storage.local.get(['isHighlighting'], function (result) {
+            if (result.isHighlighting) {
+                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    const domain = tabs[0].url;
+                    chrome.storage.local.get([domain], function (result) {
+                        result[domain] ??= [];
+                        var message = {
+                            method: 'updated-highlight-list',
+                            data: result[domain]
+                        };
+                        if (tabs.length > 0) {
+                            console.log('sending to tab:', message.data);
+                            chrome.tabs.sendMessage(tabs[0].id, message);
+                        } else {
+                            console.log('sending to popup:', message.data);
+                            chrome.runtime.sendMessage(message);
+                        }
+                    });
+                });
+            } else {
+                return;
+            }
         });
     }
 });
@@ -53,23 +65,39 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         });
         return true; // async
     }
+
+    if (message.method === 'onoff-switch') {
+        chrome.storage.local.set({ ['isHighlighting']: message.value });
+        sendResponse({ value: message.value });
+    }
 });
 
 // listen for changes to local storage
 chrome.storage.onChanged.addListener(function (changes, namespace) {
     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-        console.log(`Local Storage Updated:`
+        console.log(`Local storage updated:`
             + `\n\tkey: ${key}`
             + `\n\told value: ${oldValue}`
             + `\n\tnew value: ${newValue}`);
 
+        // hacky fix
+        if (newValue == undefined || newValue == null || newValue == true || newValue == false) {
+            newValue = [];
+        }
         // send new value to frontend to do the highlighting
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             var message = {
                 method: 'updated-highlight-list',
                 data: newValue
             };
-            chrome.tabs.sendMessage(tabs[0].id, message);
+            if (tabs.length > 0) {
+                console.log('sending to tab:', message.data);
+                chrome.tabs.sendMessage(tabs[0].id, message);
+            } else {
+                console.log('sending to popup:', message.data);
+                chrome.runtime.sendMessage(message);
+            }
+            chrome.tabs.reload(tabs[0].id);
         });
     }
 });
