@@ -1,12 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const onOffSwitch = document.getElementById('onoff-switch');
+
     const colorpicker = document.getElementById('colorpicker');
     const colorpickerContainer = document.getElementById('colorpicker-container');
     const colorpickerLabel = document.getElementById('colorpicker-label');
 
-    var onOffSwitch = document.getElementById('onoff-switch');
+    const highlightListDiv = document.getElementById('highlight-list');
+
+    const clearUrlHighlightsButton = document.getElementById('clear-url-highlights-button');
+    const clearAllHighlightsButton = document.getElementById('clear-all-highlights-button');
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        var message = {
+        const message = {
             method: "get-data",
             url: tabs[0].url
         };
@@ -14,21 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // console.log(JSON.stringify(response.data));
 
             // set on/off switch
-            var isHighlighting = response.data && response.data.on ? true : false;
+            const isHighlighting = response.data && response.data.on ? true : false;
             onOffSwitch.checked = isHighlighting;
 
             // set colorpicker and label color
 
             // set highlights list
             if (response.data.highlights.length > 0) {
-                const highlightListDiv = document.getElementById('highlight-list');
-                var highlightListHtml = '<ul class="highlight-ul">';
+                var highlightListHtml = '<ol class="highlight-ol">';
                 response.data.highlights.forEach((highlight) => {
                     const li = `<li class="highlight-li"'>${highlight}</li>`;
                     highlightListHtml += li;
                 });
-                highlightListHtml += '</ul>';
+                highlightListHtml += '</ol>';
                 highlightListDiv.innerHTML = highlightListHtml;
+            } else {
+                clearUrlHighlightsButton.disabled = true;
             }
         });
     });
@@ -47,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     onOffSwitch.addEventListener('change', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            var message = {
+            const message = {
                 method: "onoff-switch",
                 value: onOffSwitch.checked,
                 url: tabs[0].url
@@ -56,14 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const clearUrlHighlightsButton = document.getElementById('clear-url-highlights-button');
     clearUrlHighlightsButton.addEventListener('click', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             clearUrlHighlights(tabs[0].url, tabs[0].id);
         });
     });
 
-    const clearAllHighlightsButton = document.getElementById('clear-all-highlights-button');
     clearAllHighlightsButton.addEventListener('click', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             clearAllLocalStorage(tabs[0].id);

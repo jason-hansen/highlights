@@ -16,13 +16,14 @@ A Chrome Extension to persist a user's highlights for web articles.
 
 ## TODOs (for version 1)
 - work on popup (basically the settings page)
+- cleanup popup.js
+    - make highlightListDiv a helper function
     - color picker functionality to persist the chosen color (or default? in the ??= operator?)
     - better data practices with buttons
         - make them both use message calls
         - make 'clear page highlights' button just empty the list, not wipe all the data for that site
-        - disable 'clear page highlights' if there aren't any to begin with?
-    - organize popup.js code better
 - clear up hacky if statements about if it's boolean/null/undefined?
+- rename 'message' everywhere to be helpful variable names like getDataQuery or something?
 - preferred/newer js function() { } or just () => { }
 - edit manifest to allow all sites
 - selecting text within an input box triggers the extension...
