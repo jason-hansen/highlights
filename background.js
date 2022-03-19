@@ -89,6 +89,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         });
         return true;
     }
+
+    if (message.method === 'get-data') {
+        chrome.storage.local.get([message.url], function (result) {
+            result[message.url] ??= { on: undefined, highlights: [] };
+            var urlPackage = result[message.url];
+            sendResponse({ data: urlPackage });
+        });
+        return true;
+    }
 });
 
 // listen for changes to local storage

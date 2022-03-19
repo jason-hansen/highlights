@@ -6,16 +6,30 @@ document.addEventListener('DOMContentLoaded', () => {
     var onOffSwitch = document.getElementById('onoff-switch');
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        // TODO make this a message get-data-for-url or something and then set stuff?
-        chrome.storage.local.get([tabs[0].url], function (result) {
-            var isHighlighting = result[tabs[0].url] && result[tabs[0].url].on ? true : false;
-            onOffSwitch.checked = isHighlighting;
-            console.log("popup on/off value:", onOffSwitch.checked);
-            console.log(JSON.stringify(result[tabs[0].url].highlights));
+        var message = {
+            method: "get-data",
+            url: tabs[0].url
+        };
+        chrome.runtime.sendMessage(message, (response) => {
+            // console.log(JSON.stringify(response.data));
 
-            const listDiv = document.getElementById('list');
-            // TODO do some sort of foreach to build up html elements to add
-            listDiv.innerText = JSON.stringify(result[tabs[0].url].highlights);
+            // set on/off switch
+            var isHighlighting = response.data && response.data.on ? true : false;
+            onOffSwitch.checked = isHighlighting;
+
+            // set colorpicker and label color
+
+            // set highlights list
+            if (response.data.highlights.length > 0) {
+                const highlightListDiv = document.getElementById('highlight-list');
+                var highlightListHtml = '<ul class="highlight-ul">';
+                response.data.highlights.forEach((highlight) => {
+                    const li = `<li class="highlight-li"'>${highlight}</li>`;
+                    highlightListHtml += li;
+                });
+                highlightListHtml += '</ul>';
+                highlightListDiv.innerHTML = highlightListHtml;
+            }
         });
     });
 
