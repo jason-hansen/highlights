@@ -1,41 +1,44 @@
-var isHighlightingOn;
-chrome.storage.local.get(['isHighlighting'], function (result) {
-    isHighlightingOn = result.isHighlighting ? true : false;
-    console.log("on load, isHighlightingOn:", isHighlightingOn);
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     const colorpicker = document.getElementById('colorpicker');
     const colorpickerContainer = document.getElementById('colorpicker-container');
     const colorpickerLabel = document.getElementById('colorpicker-label');
 
+    var onOffSwitch = document.getElementById('onoff-switch');
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        // TODO make this a message get-data-for-url or something and then set stuff?
+        chrome.storage.local.get([tabs[0].url], function (result) {
+            var isHighlighting = result[tabs[0].url] && result[tabs[0].url].on ? true : false;
+            onOffSwitch.checked = isHighlighting;
+            console.log("popup on/off value:", onOffSwitch.checked);
+            console.log(JSON.stringify(result[tabs[0].url].highlights));
+
+            const listDiv = document.getElementById('list');
+            // TODO do some sort of foreach to build up html elements to add
+            listDiv.innerText = JSON.stringify(result[tabs[0].url].highlights);
+        });
+    });
+
     colorpicker.addEventListener('change', () => {
         const highlightColor = colorpicker.value;
-        const highlightLabelColor =
-            pickTextColorBasedOnBgColor(
-                highlightColor,
-                getComputedStyle(document.documentElement).getPropertyValue('--white').trim(),
-                getComputedStyle(document.documentElement).getPropertyValue('--black').trim());
+        const highlightLabelColor = pickTextColorBasedOnBgColor(highlightColor, getComputedStyle(document.documentElement).getPropertyValue('--white').trim(), getComputedStyle(document.documentElement).getPropertyValue('--black').trim());
         colorpickerContainer.style.backgroundColor = highlightColor;
         colorpickerLabel.style.color = highlightLabelColor;
 
-        // TODO persist these?
+        // TODO make a call to persist these two values in the json blob
         document.documentElement.style.setProperty('--highlight', highlightColor);
         document.documentElement.style.setProperty('--highlight-label', highlightLabelColor);
         console.log(highlightColor);
     });
 
-    var onOffSwitch = document.getElementById('onoff-switch');
-    onOffSwitch.checked = isHighlightingOn;
     onOffSwitch.addEventListener('change', () => {
-        var message = {
-            method: "onoff-switch",
-            value: onOffSwitch.checked
-        };
-        chrome.runtime.sendMessage(message, (response) => {
-            chrome.storage.local.get(['isHighlighting'], function (result) {
-                onOffSwitch.checked = result.isHighlighting;
-            });
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            var message = {
+                method: "onoff-switch",
+                value: onOffSwitch.checked,
+                url: tabs[0].url
+            };
+            chrome.runtime.sendMessage(message);
         });
     });
 
@@ -55,25 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // listen for messages from background.js
-chrome.runtime.onMessage.addListener(
-    function (message, sender, sendResponse) {
-        // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
-        if (message.method === "updated-highlight-list") {
-            if (message && message.data) {
-                console.log(message.data);
-            }
-        }
-    }
-);
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
+});
 
 // HELPERS ---------------------------------------------------------------
-function isHighlightingOn() {
-    chrome.storage.local.get(['isHighlighting'], function (result) {
-        console.log(result.isHighlighting);
-        return result.isHighlighting ? true : false;
-    });
-}
-
 function clearUrlHighlights(url, tabId) {
     chrome.storage.local.remove([url], () => {
         const error = chrome.runtime.lastError;

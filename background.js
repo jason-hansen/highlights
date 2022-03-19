@@ -11,22 +11,25 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         });
 
         // send existing highlights to content.js
-        chrome.storage.local.get(['isHighlighting'], function (result) {
-            if (result.isHighlighting) {
+        chrome.storage.local.get([tab.url], function (result) {
+            if (result[tab.url] && result[tab.url].on) {
                 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                    const domain = tabs[0].url;
-                    chrome.storage.local.get([domain], function (result) {
-                        result[domain] ??= [];
+                    const url = tabs[0].url;
+                    chrome.storage.local.get([url], function (result) {
+                        result[url] ??= [];
                         var message = {
                             method: 'updated-highlight-list',
-                            data: result[domain]
+                            data: result[url]
                         };
                         if (tabs.length > 0) {
-                            console.log('sending to tab:', message.data);
+                            console.log('sending to tab:', JSON.stringify(message.data));
                             chrome.tabs.sendMessage(tabs[0].id, message);
                         } else {
-                            console.log('sending to popup:', message.data);
-                            chrome.runtime.sendMessage(message);
+                            console.log('sending to popup:', JSON.stringify(message.data));
+                            chrome.runtime.sendMessage(message, (response) => {
+                                console.log('response from popup init', response);
+                                console.log(response);
+                            });
                         }
                     });
                 });
@@ -43,13 +46,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     // message method: persist-highlight
     if (message.method === "persist-highlight") {
-        const domain = sender.tab.url;
+        const url = sender.tab.url;
         const newSelection = message.selection;
 
         // add to local storage
-        chrome.storage.local.get([domain], function (result) {
-            result[domain] ??= [];
-            var highlightsFromStorage = result[domain];
+        chrome.storage.local.get([url], function (result) {
+            result[url] ??= { on: true, highlights: [] };
+            var highlightsFromStorage = result[url].highlights;
 
             // add if highlight isn't there
             if (!highlightsFromStorage.includes(newSelection)) {
@@ -61,14 +64,30 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                     highlightsFromStorage.splice(index, 1);
                 }
             }
-            chrome.storage.local.set({ [domain]: highlightsFromStorage });
+            chrome.storage.local.set({ [url]: { ...result[url], highlights: highlightsFromStorage } });
         });
         return true; // async
     }
 
     if (message.method === 'onoff-switch') {
-        chrome.storage.local.set({ ['isHighlighting']: message.value });
-        sendResponse({ value: message.value });
+        chrome.storage.local.get([message.url], function (result) {
+            result[message.url] ??= { on: undefined, highlights: [] };
+            var urlPackage = result[message.url];
+            urlPackage.on = message.value;
+            chrome.storage.local.set({ [message.url]: urlPackage }, () => {
+                sendResponse({ value: message.value });
+            });
+        });
+        return true;
+    }
+
+    if (message.method === 'is-highlighting') {
+        chrome.storage.local.get([message.url], function (result) {
+            result[message.url] ??= { on: undefined, highlights: [] };
+            var urlPackage = result[message.url];
+            sendResponse({ isHighlighting: urlPackage.on ? urlPackage.on : false });
+        });
+        return true;
     }
 });
 
@@ -77,8 +96,8 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
         console.log(`Local storage updated:`
             + `\n\tkey: ${key}`
-            + `\n\told value: ${oldValue}`
-            + `\n\tnew value: ${newValue}`);
+            + `\n\told value: ${JSON.stringify(oldValue)}`
+            + `\n\tnew value: ${JSON.stringify(newValue)}`);
 
         // hacky fix
         if (newValue == undefined || newValue == null || newValue == true || newValue == false) {
@@ -91,13 +110,16 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
                 data: newValue
             };
             if (tabs.length > 0) {
-                console.log('sending to tab:', message.data);
+                console.log('sending to tab:', JSON.stringify(message.data));
                 chrome.tabs.sendMessage(tabs[0].id, message);
-            } else {
-                console.log('sending to popup:', message.data);
-                chrome.runtime.sendMessage(message);
+                chrome.tabs.reload(tabs[0].id); // have to  refresh here rather than in content.js because chrome.tabs isn't accessable there
+                return true;
             }
-            chrome.tabs.reload(tabs[0].id);
+            // else {
+            //     console.log('sending to popup:', JSON.stringify(message.data));
+            //     chrome.runtime.sendMessage(message);
+            //     return true;
+            // }
         });
     }
 });

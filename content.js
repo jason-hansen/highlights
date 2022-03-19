@@ -16,15 +16,19 @@ window.addEventListener("mouseup", function (event) {
 
     // sending message to background.js
     if (text.length > 0) {
-        chrome.storage.local.get(['isHighlighting'], function (result) {
-            if (result.isHighlighting) {
+        var message = {
+            method: "is-highlighting",
+            url: this.location.href
+        };
+        chrome.runtime.sendMessage(message, (response) => {
+            if (response.isHighlighting) {
                 var message = {
                     method: "persist-highlight",
                     selection: text
                 };
                 chrome.runtime.sendMessage(message);
             } else {
-                console.log('highlighting is currently off for this url "' + text + '"');
+                console.log('highlighting is "off" for this url: "' + text + '"');
                 return;
             }
         });
@@ -32,15 +36,14 @@ window.addEventListener("mouseup", function (event) {
 });
 
 // listen for messages from background.js
-chrome.runtime.onMessage.addListener(
-    function (message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
         var highlightColor = getComputedStyle(document.documentElement).getPropertyValue('--highlight').trim();
         highlightColor = highlightColor ? highlightColor : '#e7cd97';
 
         if (message.method === "updated-highlight-list") {
-            if (message && message.data) {
-                message.data.forEach((highlight) => {
+            if (message && message.data && message.data.highlights) {
+                message.data.highlights.forEach((highlight) => {
                     const hl = `<span style='background-color: ${highlightColor}; padding-top: 2.5px; padding-bottom: 2.5px;'>${highlight}</span>`;
                     document.body.innerHTML = document.body.innerHTML.replace(new RegExp(highlight, 'g'), hl);
                 });
@@ -50,12 +53,6 @@ chrome.runtime.onMessage.addListener(
 );
 
 // HELPERS ---------------------------------------------------------------
-function isHighlightingOn() {
-    chrome.storage.local.get(['isHighlighting'], function (result) {
-        return result.isHighlighting ? true : false;
-    });
-}
-
 function expandSelectionToWhitespace(text, html) {
     var startIndex = document.body.innerText.indexOf(text);
     var endIndex = startIndex + text.length;
