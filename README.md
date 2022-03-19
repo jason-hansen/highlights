@@ -17,7 +17,6 @@ A Chrome Extension to persist a user's highlights for web articles.
 ## TODOs (for version 1)
 - work on popup (basically the settings page)
     - color picker functionality to persist the chosen color (or default? in the ??= operator?)
-    - make on/off and colorpicker next to each other
     - better data practices with buttons
         - make them both use message calls
         - make 'clear page highlights' button just empty the list, not wipe all the data for that site
