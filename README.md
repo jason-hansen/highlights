@@ -1,7 +1,5 @@
 # HIGHLIGHTS by Jason Hansen
-
-## ABOUT
-A Chrome Extension to persist a user's highlights for web articles.
+A Chrome Extension to persist a user's highlights for web articles
 
 ## DATA
 ```
@@ -15,13 +13,12 @@ A Chrome Extension to persist a user's highlights for web articles.
 ```
 
 ## TODOs (for version 1)
-- work on popup (basically the settings page)
 - cleanup popup.js
-    - make highlightListDiv a helper function
     - color picker functionality to persist the chosen color (or default? in the ??= operator?)
     - better data practices with buttons
         - make them both use message calls
         - make 'clear page highlights' button just empty the list, not wipe all the data for that site
+    - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
 - clear up hacky if statements about if it's boolean/null/undefined?
 - rename 'message' everywhere to be helpful variable names like getDataQuery or something?
 - preferred/newer js function() { } or just () => { }
@@ -34,9 +31,9 @@ A Chrome Extension to persist a user's highlights for web articles.
     - text doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
 - injecting a span doesn't work if the highlight is across multiple html tags (p, em, etc.)
 - consolidate logging into the backend? Or at least don't just let them die in the popup.js?
-- beef up readme with how-to "load unpacked", how-to use it, style, icon attribution, etc
+- beef up readme with how to install/"load unpacked", how to use it, icon attribution link, "why" behind the project, etc.
 - code/file organization?
-- add unit tests somehow?
+- add unit tests somehow? https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
 
 ## ROADMAP (for version 2)
 - JSON of highlight: text, color, location, note

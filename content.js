@@ -28,7 +28,7 @@ window.addEventListener("mouseup", function (event) {
                 };
                 chrome.runtime.sendMessage(message);
             } else {
-                console.log('highlighting is "off" for this url: "' + text + '"');
+                // console.log('highlighting is "off" for this url: "' + text + '"');
                 return;
             }
         });

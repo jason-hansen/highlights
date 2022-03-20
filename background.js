@@ -22,14 +22,11 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                             data: result[url]
                         };
                         if (tabs.length > 0) {
-                            console.log('sending to tab:', JSON.stringify(message.data));
+                            // console.log('sending to tab:', JSON.stringify(message.data));
                             chrome.tabs.sendMessage(tabs[0].id, message);
                         } else {
-                            console.log('sending to popup:', JSON.stringify(message.data));
-                            chrome.runtime.sendMessage(message, (response) => {
-                                console.log('response from popup init', response);
-                                console.log(response);
-                            });
+                            // console.log('sending to popup:', JSON.stringify(message.data));
+                            chrome.runtime.sendMessage(message);
                         }
                     });
                 });
@@ -119,11 +116,12 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
                 data: newValue
             };
             if (tabs.length > 0) {
-                console.log('sending to tab:', JSON.stringify(message.data));
+                // console.log('sending to tab:', JSON.stringify(message.data));
                 chrome.tabs.sendMessage(tabs[0].id, message);
                 chrome.tabs.reload(tabs[0].id); // have to  refresh here rather than in content.js because chrome.tabs isn't accessable there
                 return true;
             }
+            // not necessary because you can't update while having the popup open... so this code will never be called
             // else {
             //     console.log('sending to popup:', JSON.stringify(message.data));
             //     chrome.runtime.sendMessage(message);

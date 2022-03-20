@@ -26,13 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // set highlights list
             if (response.data.highlights.length > 0) {
-                var highlightListHtml = '<ol class="highlight-ol">';
-                response.data.highlights.forEach((highlight) => {
-                    const li = `<li class="highlight-li"'>${highlight}</li>`;
-                    highlightListHtml += li;
-                });
-                highlightListHtml += '</ol>';
-                highlightListDiv.innerHTML = highlightListHtml;
+                highlightListDiv.innerHTML = buildHighlightListHtml(response.data.highlights);
             } else {
                 clearUrlHighlightsButton.disabled = true;
             }
@@ -80,14 +74,21 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
 });
 
+function buildHighlightListHtml(highlights) {
+    var highlightListHtml = '<ol class="highlight-ol">';
+    highlights.forEach((highlight) => {
+        const li = `<li class="highlight-li"'>${highlight}</li>`;
+        highlightListHtml += li;
+    });
+    highlightListHtml += '</ol>';
+    return highlightListHtml;
+}
+
 // HELPERS ---------------------------------------------------------------
 function clearUrlHighlights(url, tabId) {
     chrome.storage.local.remove([url], () => {
-        const error = chrome.runtime.lastError;
-        if (error) {
-            console.error('Error while trying to remove local storage for:', url, error);
-        } else {
-            console.log('Local storage for url:', url);
+        if (chrome.runtime.lastError) {
+            console.error('Error while trying to remove local storage for:', url, chrome.runtime.lastError);
         }
     });
     chrome.tabs.reload(tabId);
@@ -95,11 +96,8 @@ function clearUrlHighlights(url, tabId) {
 
 function clearAllLocalStorage(tabId) {
     chrome.storage.local.clear(() => {
-        const error = chrome.runtime.lastError;
-        if (error) {
-            console.error('Error while trying to remove all local storage', error);
-        } else {
-            console.log('All local storage was removed');
+        if (chrome.runtime.lastError) {
+            console.error('Error while trying to remove all local storage', chrome.runtime.lastError);
         }
     });
     chrome.tabs.reload(tabId);
