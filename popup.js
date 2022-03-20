@@ -47,10 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 highlightLabelColor: highlightLabelColor,
                 url: tabs[0].url
             };
-            chrome.runtime.sendMessage(persistHighlightColorInfo, (response) => {
-                console.log(JSON.stringify(response.data));
-                console.log(response.data);
-            });
+            chrome.runtime.sendMessage(persistHighlightColorInfo);
         });
     });
 
@@ -67,20 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearUrlHighlightsButton.addEventListener('click', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            clearUrlHighlights(tabs[0].url, tabs[0].id);
+            clearUrlHighlights(tabs[0].url);
         });
     });
 
     clearAllHighlightsButton.addEventListener('click', () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            clearAllLocalStorage(tabs[0].id);
-        });
+        clearAllInfo();
     });
-});
-
-// listen for messages from background.js
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
 });
 
 function buildHighlightListHtml(highlights) {
@@ -94,26 +84,23 @@ function buildHighlightListHtml(highlights) {
 }
 
 // HELPERS ---------------------------------------------------------------
-function clearUrlHighlights(url, tabId) {
-    chrome.storage.local.remove([url], () => {
-        if (chrome.runtime.lastError) {
-            console.error('Error while trying to remove local storage for:', url, chrome.runtime.lastError);
-        }
+function clearUrlHighlights(url) {
+    const clearHighlightsForUrl = {
+        method: 'clear-highlights-for-url',
+        url: url
+    };
+    chrome.runtime.sendMessage(clearHighlightsForUrl, () => {
+        window.location.reload();
     });
-    chrome.tabs.reload(tabId);
 }
 
-function clearAllLocalStorage(tabId) {
-    chrome.storage.local.clear(() => {
-        if (chrome.runtime.lastError) {
-            console.error('Error while trying to remove all local storage', chrome.runtime.lastError);
-        }
+function clearAllInfo() {
+    const clearAllInfo = {
+        method: 'clear-all-info'
+    };
+    chrome.runtime.sendMessage(clearAllInfo, () => {
+        window.location.reload();
     });
-    chrome.tabs.reload(tabId);
-}
-
-function clearLocalStorageForDomain(domain) {
-    // TODO
 }
 
 // https://stackoverflow.com/a/41491220

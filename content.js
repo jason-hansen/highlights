@@ -26,9 +26,10 @@ window.addEventListener("mouseup", function (event) {
                     method: "persist-highlight",
                     selection: text
                 };
-                chrome.runtime.sendMessage(message);
+                chrome.runtime.sendMessage(message, (result) => {
+                    console.log('result', result);
+                });
             } else {
-                // console.log('highlighting is "off" for this url: "' + text + '"');
                 return;
             }
         });
@@ -37,7 +38,7 @@ window.addEventListener("mouseup", function (event) {
 
 // listen for messages from background.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
+    console.log('why are the highlights disappearing? 4');
     if (message.method === 'highlight-data-updated') {
         const highlightStyle = `'
                 color: ${message.data.highlightLabelColor};
@@ -50,9 +51,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             const hl = `<span style=${highlightStyle}>${highlight}</span>`;
             document.body.innerHTML = document.body.innerHTML.replace(new RegExp(highlight, 'g'), hl);
         });
+        sendResponse({});
     }
-}
-);
+});
 
 // HELPERS ---------------------------------------------------------------
 function expandSelectionToWhitespace(text, html) {
