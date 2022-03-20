@@ -14,14 +14,17 @@ A Chrome Extension to persist a user's highlights for web articles
 
 ## TODOs (for version 1)
 - cleanup popup.js
-    - color picker functionality to persist the chosen color (or default? in the ??= operator?)
     - better data practices with buttons
         - make them both use message calls
         - make 'clear page highlights' button just empty the list, not wipe all the data for that site
     - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
 - clear up hacky if statements about if it's boolean/null/undefined?
 - rename 'message' everywhere to be helpful variable names like getDataQuery or something?
-- preferred/newer js function() { } or just () => { }
+- constructor function to return an empty default url data packet
+    - https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics#introducing_constructors
+- js conventions
+    - function() { } or just () => { }
+    - single vs double quotes
 - edit manifest to allow all sites
 - selecting text within an input box triggers the extension...
     - maybe something with selection type RANGE/CONTROL/INPUT?
@@ -36,7 +39,7 @@ A Chrome Extension to persist a user's highlights for web articles
 - add unit tests somehow? https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
 
 ## ROADMAP (for version 2)
-- JSON of highlight: text, color, location, note
+- expand info in highlight data: text, color, location, note, highlight type (underline, regular)
     - unique colors based on picker
     - ability to add notes to highlights
     - get the actual location and not just use the regex everywhere

@@ -18,7 +18,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                     chrome.storage.local.get([url], function (result) {
                         result[url] ??= [];
                         var message = {
-                            method: 'updated-highlight-list',
+                            method: 'highlight-data-updated',
                             data: result[url]
                         };
                         if (tabs.length > 0) {
@@ -68,7 +68,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.method === 'onoff-switch') {
         chrome.storage.local.get([message.url], function (result) {
-            result[message.url] ??= { on: undefined, highlights: [] };
+            result[message.url] ??= {
+                on: true,
+                highlights: [],
+                highlightColor: '#e7cd97',
+                highlightLabelColor: '#000000'
+            };
             var urlPackage = result[message.url];
             urlPackage.on = message.value;
             chrome.storage.local.set({ [message.url]: urlPackage }, () => {
@@ -80,7 +85,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.method === 'is-highlighting') {
         chrome.storage.local.get([message.url], function (result) {
-            result[message.url] ??= { on: undefined, highlights: [] };
+            result[message.url] ??= {
+                on: true,
+                highlights: [],
+                highlightColor: '#e7cd97',
+                highlightLabelColor: '#000000'
+            };
             var urlPackage = result[message.url];
             sendResponse({ isHighlighting: urlPackage.on ? urlPackage.on : false });
         });
@@ -94,6 +104,28 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             sendResponse({ data: urlPackage });
         });
         return true;
+    }
+
+    if (message.method === 'persist-highlight-color-info') {
+        const url = message.url;
+
+        // add to local storage
+        chrome.storage.local.get([url], function (result) {
+            result[url] ??= {
+                on: true,
+                highlights: [],
+                highlightColor: '#e7cd97',
+                highlightLabelColor: '#000000'
+            };
+
+            result[url].highlightColor = message.highlightColor;
+            result[url].highlightLabelColor = message.highlightLabelColor;
+
+            chrome.storage.local.set({ [url]: result[url] }, () => {
+                sendResponse({ data: result[url] });
+            });
+        });
+        return true; // async
     }
 });
 
@@ -112,7 +144,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
         // send new value to frontend to do the highlighting
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             var message = {
-                method: 'updated-highlight-list',
+                method: 'highlight-data-updated',
                 data: newValue
             };
             if (tabs.length > 0) {
@@ -121,7 +153,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
                 chrome.tabs.reload(tabs[0].id); // have to  refresh here rather than in content.js because chrome.tabs isn't accessable there
                 return true;
             }
-            // not necessary because you can't update while having the popup open... so this code will never be called
+            // FIXME not necessary because you can't update while having the popup open... so this code will never be called
             // else {
             //     console.log('sending to popup:', JSON.stringify(message.data));
             //     chrome.runtime.sendMessage(message);

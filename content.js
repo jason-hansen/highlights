@@ -37,19 +37,21 @@ window.addEventListener("mouseup", function (event) {
 
 // listen for messages from background.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-        // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
-        var highlightColor = getComputedStyle(document.documentElement).getPropertyValue('--highlight').trim();
-        highlightColor = highlightColor ? highlightColor : '#e7cd97';
-
-        if (message.method === "updated-highlight-list") {
-            if (message && message.data && message.data.highlights) {
-                message.data.highlights.forEach((highlight) => {
-                    const hl = `<span style='background-color: ${highlightColor}; padding-top: 2.5px; padding-bottom: 2.5px;'>${highlight}</span>`;
-                    document.body.innerHTML = document.body.innerHTML.replace(new RegExp(highlight, 'g'), hl);
-                });
-            }
-        }
+    // console.log(sender.tab ? "from background script: " + sender.tab.url : "from the extension");
+    if (message.method === 'highlight-data-updated') {
+        const highlightStyle = `'
+                color: ${message.data.highlightLabelColor};
+                background-color: ${message.data.highlightColor};
+                border-radius: 5px;
+                padding: 2.5px 1.5px;
+                margin: 0px -1.5px;
+                '`;
+        message.data.highlights.forEach((highlight) => {
+            const hl = `<span style=${highlightStyle}>${highlight}</span>`;
+            document.body.innerHTML = document.body.innerHTML.replace(new RegExp(highlight, 'g'), hl);
+        });
     }
+}
 );
 
 // HELPERS ---------------------------------------------------------------

@@ -16,13 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
             url: tabs[0].url
         };
         chrome.runtime.sendMessage(message, (response) => {
-            // console.log(JSON.stringify(response.data));
-
             // set on/off switch
-            const isHighlighting = response.data && response.data.on ? true : false;
+            const isHighlighting = response.data.on ? true : false;
             onOffSwitch.checked = isHighlighting;
 
             // set colorpicker and label color
+            colorpickerContainer.style.backgroundColor = response.data.highlightColor;
+            colorpickerLabel.style.color = response.data.highlightLabelColor;
 
             // set highlights list
             if (response.data.highlights.length > 0) {
@@ -36,13 +36,22 @@ document.addEventListener('DOMContentLoaded', () => {
     colorpicker.addEventListener('change', () => {
         const highlightColor = colorpicker.value;
         const highlightLabelColor = pickTextColorBasedOnBgColor(highlightColor, getComputedStyle(document.documentElement).getPropertyValue('--white').trim(), getComputedStyle(document.documentElement).getPropertyValue('--black').trim());
+
         colorpickerContainer.style.backgroundColor = highlightColor;
         colorpickerLabel.style.color = highlightLabelColor;
 
-        // TODO make a call to persist these two values in the json blob
-        document.documentElement.style.setProperty('--highlight', highlightColor);
-        document.documentElement.style.setProperty('--highlight-label', highlightLabelColor);
-        console.log(highlightColor);
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const persistHighlightColorInfo = {
+                method: "persist-highlight-color-info",
+                highlightColor: highlightColor,
+                highlightLabelColor: highlightLabelColor,
+                url: tabs[0].url
+            };
+            chrome.runtime.sendMessage(persistHighlightColorInfo, (response) => {
+                console.log(JSON.stringify(response.data));
+                console.log(response.data);
+            });
+        });
     });
 
     onOffSwitch.addEventListener('change', () => {
