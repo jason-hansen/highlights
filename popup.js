@@ -85,21 +85,23 @@ function buildHighlightListHtml(highlights) {
 
 // HELPERS ---------------------------------------------------------------
 function clearUrlHighlights(url) {
-    const clearHighlightsForUrl = {
+    const clearHighlightsForUrlMessage = {
         method: 'clear-highlights-for-url',
         url: url
     };
-    chrome.runtime.sendMessage(clearHighlightsForUrl, () => {
-        window.location.reload();
+    chrome.runtime.sendMessage(clearHighlightsForUrlMessage, (clearHighlightsForUrlMessage) => {
+        window.location.reload(); // TODO this reloads the popup, not the tab...
+        console.log(clearHighlightsForUrlMessage);
     });
 }
 
 function clearAllInfo() {
-    const clearAllInfo = {
+    const clearAllInfoMessage = {
         method: 'clear-all-info'
     };
-    chrome.runtime.sendMessage(clearAllInfo, () => {
-        window.location.reload();
+    chrome.runtime.sendMessage(clearAllInfoMessage, (clearAllInfoResponse) => {
+        window.location.reload(); // TODO this reloads the popup, not the tab...
+        console.log(clearAllInfoResponse);
     });
 }
 

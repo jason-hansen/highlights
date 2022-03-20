@@ -9,32 +9,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             target: { tabId: tabId },
             files: ['content.js']
         });
-
-        // send existing highlights to content.js
-        // TODO ew fix this?? two .get calls?
-        // chrome.storage.local.get([tab.url], function (result) {
-        //     if (result[tab.url] && result[tab.url].on) {
-        //         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        //             const url = tabs[0].url;
-        //             chrome.storage.local.get([url], function (result) {
-        //                 result[url] ??= [];
-        //                 var message = {
-        //                     method: 'highlight-data-updated',
-        //                     data: result[url]
-        //                 };
-        //                 if (tabs.length > 0) {
-        //                     console.log('sending to tab on init:', JSON.stringify(message.data, null, 2));
-        //                     chrome.tabs.sendMessage(tabs[0].id, message);
-        //                 } else {
-        //                     console.log('sending to popup on init:', JSON.stringify(message.data, null, 2));
-        //                     chrome.runtime.sendMessage(message);
-        //                 }
-        //             });
-        //         });
-        //     } else {
-        //         return;
-        //     }
-        // });
     }
 });
 
@@ -49,7 +23,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
         // add to local storage
         chrome.storage.local.get([url], function (result) {
-            result[url] ??= { on: true, highlights: [] };
+            result[url] ??= {
+                on: true,
+                highlights: [],
+                highlightColor: '#e7cd97',
+                highlightLabelColor: '#000000'
+            };
             var highlightsFromStorage = result[url].highlights;
 
             // add if highlight isn't there
@@ -62,7 +41,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
                     highlightsFromStorage.splice(index, 1);
                 }
             }
-            chrome.storage.local.set({ [url]: { ...result[url], highlights: highlightsFromStorage } });
+            chrome.storage.local.set({ [url]: { ...result[url], highlights: highlightsFromStorage } }, () => {
+                sendResponse({ value: 'persited!' });
+            });
         });
         return true; // async
     }
@@ -70,7 +51,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.method === 'onoff-switch') {
         chrome.storage.local.get([message.url], function (result) {
             result[message.url] ??= {
-                on: true,
+                on: undefined,
                 highlights: [],
                 highlightColor: '#e7cd97',
                 highlightLabelColor: '#000000'
@@ -87,7 +68,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.method === 'is-highlighting') {
         chrome.storage.local.get([message.url], function (result) {
             result[message.url] ??= {
-                on: true,
+                on: undefined,
                 highlights: [],
                 highlightColor: '#e7cd97',
                 highlightLabelColor: '#000000'
@@ -135,14 +116,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
         chrome.storage.local.get([url], function (result) {
             result[url] ??= {
-                on: true,
+                on: undefined,
                 highlights: [],
                 highlightColor: '#e7cd97',
                 highlightLabelColor: '#000000'
             };
             result[url].highlights = [];
             chrome.storage.local.set({ [url]: result[url] }, () => {
-                sendResponse({});
+                sendResponse({ value: 'cleared highlights for url!'});
             });
         });
         return true; // async
@@ -150,7 +131,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     if (message.method === 'clear-all-info') {
         chrome.storage.local.clear(() => {
-            sendResponse({});
+            sendResponse({ value: 'cleared all info!'});
         });
         return true; // async
     }
@@ -159,38 +140,30 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 // listen for changes to local storage
 chrome.storage.onChanged.addListener(function (changes, namespace) {
     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-        // console.log(`Local storage updated:`
-        //     + `\nkey: ${key}`
-        //     + `\nold value:\n${JSON.stringify(oldValue, null, 2)}`
-        //     + `\nnew value:\n${JSON.stringify(newValue, null, 2)}`);
+        // console.log(`key: ${key}`);
+        // console.log(`Local storage key: ${key}, old value:\n${JSON.stringify(oldValue, null, 2)}`);
+        // console.log(`Local storage key: ${key}, new value:\n${JSON.stringify(newValue, null, 2)}`);
+        // console.log('diff of old state and new state:', diff(oldValue, newValue));
 
-        console.log('diff of old state and new state:', diff(oldValue, newValue));
-
-        // hacky fix
-        if (newValue == undefined || newValue == null || newValue == true || newValue == false) {
-            newValue = [];
+        // TODO hacky fix... maybe move this check to the 'highlight-data-updated' listener in content.js?
+        if (newValue && !newValue.on) {
+            newValue.highlights = [];
         }
 
         // send new value to frontend to do the highlighting
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            var message = {
+            var dataUpdatedMessage = {
                 method: 'highlight-data-updated',
                 data: newValue
             };
             if (tabs.length > 0) {
-                console.log('why are the highlights disappearing? 1');
-                chrome.tabs.sendMessage(tabs[0].id, message, () => {
-                    console.log('why are the highlights disappearing? 2');
+                // console.log('sending updated values to content.js:');
+                chrome.tabs.sendMessage(tabs[0].id, dataUpdatedMessage, (response) => {
+                    // console.log(response);
+                    if (newValue && !newValue.on) {
+                        chrome.tabs.reload(tabs[0].id); // have to  refresh here rather than in content.js because chrome.tabs isn't accessable there
+                    }
                 });
-                chrome.tabs.reload(tabs[0].id); // have to  refresh here rather than in content.js because chrome.tabs isn't accessable there
-                console.log('why are the highlights disappearing? 3');
-                return true;
-            }
-            // FIXME not necessary because you can't update while having the popup open... so this code will never be called
-            else {
-                console.log('why are the highlights disappearing? 99');
-                console.log('sending to popup:', JSON.stringify(message.data));
-                chrome.runtime.sendMessage(message);
                 return true;
             }
         });

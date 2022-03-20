@@ -13,11 +13,10 @@ A Chrome Extension to persist a user's highlights for web articles
 ```
 
 ## TODOs (for version 1)
-- cleanup popup.js
-    - the highlights aren't showing up anymore... they blip and then disappear
-    - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
-- clear up hacky if statements about if it's boolean/null/undefined?
+- how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
+- clear up hacky if statements about if it's boolean/null/undefined by moving the check/emptying to content.js (send the whole packet)
 - rename 'message' everywhere to be helpful variable names like getDataQuery or something?
+- is the ??= stuff even necessary?
 - constructor function to return an empty default url data packet
     - https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics#introducing_constructors
 - js conventions

@@ -1,4 +1,14 @@
 // FRONTEND
+document.addEventListener('DOMContentLoaded', () => {
+    const message = {
+        method: "get-data",
+        url: this.location.href
+    };
+    chrome.runtime.sendMessage(message, (response) => {
+        document.body.innerHTML = buildHighlightedHtml(response.data);
+    });
+});
+
 window.addEventListener("mouseup", function (event) {
     var text = "";
     if (isTextSelectionRange()) {
@@ -16,18 +26,18 @@ window.addEventListener("mouseup", function (event) {
 
     // sending message to background.js
     if (text.length > 0) {
-        var message = {
+        var isHighlightingMessage = {
             method: "is-highlighting",
             url: this.location.href
         };
-        chrome.runtime.sendMessage(message, (response) => {
-            if (response.isHighlighting) {
-                var message = {
+        chrome.runtime.sendMessage(isHighlightingMessage, (isHighlightingResponse) => {
+            if (isHighlightingResponse.isHighlighting) {
+                var persistHighlightMessage = {
                     method: "persist-highlight",
                     selection: text
                 };
-                chrome.runtime.sendMessage(message, (result) => {
-                    console.log('result', result);
+                chrome.runtime.sendMessage(persistHighlightMessage, (persistHighlightResponse) => {
+                    // console.log('persistHighlightResponse:', persistHighlightResponse);
                 });
             } else {
                 return;
@@ -38,24 +48,30 @@ window.addEventListener("mouseup", function (event) {
 
 // listen for messages from background.js
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    console.log('why are the highlights disappearing? 4');
     if (message.method === 'highlight-data-updated') {
-        const highlightStyle = `'
-                color: ${message.data.highlightLabelColor};
-                background-color: ${message.data.highlightColor};
-                border-radius: 5px;
-                padding: 2.5px 1.5px;
-                margin: 0px -1.5px;
-                '`;
-        message.data.highlights.forEach((highlight) => {
-            const hl = `<span style=${highlightStyle}>${highlight}</span>`;
-            document.body.innerHTML = document.body.innerHTML.replace(new RegExp(highlight, 'g'), hl);
-        });
-        sendResponse({});
+        document.body.innerHTML = buildHighlightedHtml(message.data);
+        // return true;
+        sendResponse({ response: 'thanks!' });
     }
 });
 
 // HELPERS ---------------------------------------------------------------
+function buildHighlightedHtml(data) {
+    var newHtml = document.body.innerHTML;
+    const highlightStyle = `'
+                color: ${data.highlightLabelColor};
+                background-color: ${data.highlightColor};
+                border-radius: 5px;
+                padding: 2.5px 1.5px;
+                margin: 0px -1.5px;
+                '`;
+    data.highlights.forEach((highlight) => {
+        const hl = `<span style=${highlightStyle}>${highlight}</span>`;
+        newHtml = newHtml.replace(new RegExp(highlight, 'g'), hl);
+    });
+    return newHtml;
+}
+
 function expandSelectionToWhitespace(text, html) {
     var startIndex = document.body.innerText.indexOf(text);
     var endIndex = startIndex + text.length;
