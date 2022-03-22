@@ -1,11 +1,11 @@
 // FRONTEND
 document.addEventListener('DOMContentLoaded', () => {
-    const message = {
+    const getDataMessage = {
         method: "get-data",
         url: this.location.href
     };
-    chrome.runtime.sendMessage(message, (response) => {
-        document.body.innerHTML = buildHighlightedHtml(response.data);
+    chrome.runtime.sendMessage(getDataMessage, (getDataResponse) => {
+        document.body.innerHTML = buildHighlightedHtml(getDataResponse.data);
     });
 });
 
@@ -55,7 +55,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 });
 
-// HELPERS ---------------------------------------------------------------
+// HELPERS ------------------------------------------------------------
 function buildHighlightedHtml(data) {
     var newHtml = document.body.innerHTML;
     const highlightStyle = `'

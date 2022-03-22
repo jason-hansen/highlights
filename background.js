@@ -16,6 +16,30 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     // console.log(sender.tab ? "from a content script: " + sender.tab.url : "from the extension");
 
+    // HANDLE MESSAGES FROM CONTENT ---------------------------------------
+    if (message.method === 'get-data') {
+        chrome.storage.local.get([message.url], function (result) {
+            result[message.url] ??= { on: undefined, highlights: [] };
+            var urlPackage = result[message.url];
+            sendResponse({ data: urlPackage });
+        });
+        return true;
+    }
+
+    if (message.method === 'is-highlighting') {
+        chrome.storage.local.get([message.url], function (result) {
+            result[message.url] ??= {
+                on: undefined,
+                highlights: [],
+                highlightColor: '#e7cd97',
+                highlightLabelColor: '#000000'
+            };
+            var urlPackage = result[message.url];
+            sendResponse({ isHighlighting: urlPackage.on ? urlPackage.on : false });
+        });
+        return true;
+    }
+
     // message method: persist-highlight
     if (message.method === "persist-highlight") {
         const url = sender.tab.url;
@@ -48,6 +72,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         return true; // async
     }
 
+    // HANDLE MESSAGES FROM POPUP -----------------------------------------
     if (message.method === 'onoff-switch') {
         chrome.storage.local.get([message.url], function (result) {
             result[message.url] ??= {
@@ -61,29 +86,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             chrome.storage.local.set({ [message.url]: urlPackage }, () => {
                 sendResponse({ value: message.value });
             });
-        });
-        return true;
-    }
-
-    if (message.method === 'is-highlighting') {
-        chrome.storage.local.get([message.url], function (result) {
-            result[message.url] ??= {
-                on: undefined,
-                highlights: [],
-                highlightColor: '#e7cd97',
-                highlightLabelColor: '#000000'
-            };
-            var urlPackage = result[message.url];
-            sendResponse({ isHighlighting: urlPackage.on ? urlPackage.on : false });
-        });
-        return true;
-    }
-
-    if (message.method === 'get-data') {
-        chrome.storage.local.get([message.url], function (result) {
-            result[message.url] ??= { on: undefined, highlights: [] };
-            var urlPackage = result[message.url];
-            sendResponse({ data: urlPackage });
         });
         return true;
     }
