@@ -11,22 +11,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearAllHighlightsButton = document.getElementById('clear-all-highlights-button');
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        const message = {
+        const getDataMessage = {
             method: "get-data",
             url: tabs[0].url
         };
-        chrome.runtime.sendMessage(message, (response) => {
+        chrome.runtime.sendMessage(getDataMessage, (getDataResponse) => {
             // set on/off switch
-            const isHighlighting = response.data.on ? true : false;
+            const isHighlighting = getDataResponse.data.on ? true : false;
             onOffSwitch.checked = isHighlighting;
 
             // set colorpicker and label color
-            colorpickerContainer.style.backgroundColor = response.data.highlightColor;
-            colorpickerLabel.style.color = response.data.highlightLabelColor;
+            colorpickerContainer.style.backgroundColor = getDataResponse.data.highlightColor;
+            colorpickerLabel.style.color = getDataResponse.data.highlightLabelColor;
 
             // set highlights list
-            if (response.data.highlights.length > 0) {
-                highlightListDiv.innerHTML = buildHighlightListHtml(response.data.highlights);
+            if (getDataResponse.data.highlights.length > 0) {
+                highlightListDiv.innerHTML = buildHighlightListHtml(getDataResponse.data.highlights);
             } else {
                 clearUrlHighlightsButton.disabled = true;
             }
@@ -41,24 +41,24 @@ document.addEventListener('DOMContentLoaded', () => {
         colorpickerLabel.style.color = highlightLabelColor;
 
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const persistHighlightColorInfo = {
+            const persistHighlightColorMessage = {
                 method: "persist-highlight-color-info",
                 highlightColor: highlightColor,
                 highlightLabelColor: highlightLabelColor,
                 url: tabs[0].url
             };
-            chrome.runtime.sendMessage(persistHighlightColorInfo);
+            chrome.runtime.sendMessage(persistHighlightColorMessage);
         });
     });
 
     onOffSwitch.addEventListener('change', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const message = {
+            const onOffValueMessage = {
                 method: "onoff-switch",
                 value: onOffSwitch.checked,
                 url: tabs[0].url
             };
-            chrome.runtime.sendMessage(message);
+            chrome.runtime.sendMessage(onOffValueMessage);
         });
     });
 

@@ -1,16 +1,17 @@
-# HIGHLIGHTS by Jason Hansen
-A Chrome Extension to persist a user's highlights for web articles
+![highlights](/images/icon-128x128-h.png)
 
-## DATA
-```
-{
-    "highlights": [],
-    "on": false,
-    "url": "",
-    "highlightColor": "",
-    "highlightLabelColor": ""
-}
-```
+# HIGHLIGHTS
+**A Chrome Extension to persist a user's highlights for web articles**
+
+*by Jason Hansen*
+
+&nbsp;
+
+## HOW TO INSTALL
+1. Download or clone the repo
+2. Go to [chrome://extensions/](chrome://extensions/) and switch into "Developer mode" in the top right
+3. Click the `Load unpacked` button in the top left and navigate to the downloaded folder
+4. Find the extension in the list of extensions in the browser
 
 ## TODOs (for version 1)
 - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
@@ -27,6 +28,7 @@ A Chrome Extension to persist a user's highlights for web articles
     - some sort of confirmation dialog or something?
 - expanding regex wrong?
     - text doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
+    - do something with indexes
 - injecting a span doesn't work if the highlight is across multiple html tags (p, em, etc.)
 - beef up readme with how to install/"load unpacked", how to use it, icon attribution link, "why" behind the project, etc.
 - add unit tests somehow? https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
@@ -42,3 +44,14 @@ A Chrome Extension to persist a user's highlights for web articles
 - keep track of highlights in a stack to undo/redo highlights
     - maybe this just comes with pushing to the array?
 - hotkey to toggle on/off switch
+
+## DATA
+```
+{
+    "highlights": [],
+    "on": false,
+    "url": "",
+    "highlightColor": "",
+    "highlightLabelColor": ""
+}
+```

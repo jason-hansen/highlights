@@ -40,7 +40,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         return true;
     }
 
-    // message method: persist-highlight
     if (message.method === "persist-highlight") {
         const url = sender.tab.url;
         const newSelection = message.selection;
