@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         const getDataMessage = {
-            method: "get-data",
+            method: 'get-data',
             url: tabs[0].url
         };
         chrome.runtime.sendMessage(getDataMessage, (getDataResponse) => {
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             const persistHighlightColorMessage = {
-                method: "persist-highlight-color-info",
+                method: 'persist-highlight-color-info',
                 highlightColor: highlightColor,
                 highlightLabelColor: highlightLabelColor,
                 url: tabs[0].url
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onOffSwitch.addEventListener('change', () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             const onOffValueMessage = {
-                method: "onoff-switch",
+                method: 'onoff-switch',
                 value: onOffSwitch.checked,
                 url: tabs[0].url
             };
@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// HELPERS ---------------------------------------------------------------
 function buildHighlightListHtml(highlights) {
     var highlightListHtml = '<ol class="highlight-ol">';
     highlights.forEach((highlight) => {
@@ -83,7 +84,6 @@ function buildHighlightListHtml(highlights) {
     return highlightListHtml;
 }
 
-// HELPERS ---------------------------------------------------------------
 function clearUrlHighlights(url) {
     const clearHighlightsForUrlMessage = {
         method: 'clear-highlights-for-url',

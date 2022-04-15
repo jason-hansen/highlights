@@ -14,11 +14,10 @@
 4. Find the extension in the list of extensions in the browser
 
 ## TODOs (for version 1)
+- adding a new highlight doesn't play well with existing span stuff </>
+- why do the highlights disappear sometimes?
 - clear up hacky if statements about if it's boolean/null/undefined by moving the check/emptying to content.js (send the whole packet)
 - is the ??= stuff even necessary?
-- js conventions
-    - function() { } or just () => { }
-    - single vs double quotes
 - constructor function to return an empty default url data packet
     - https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics#introducing_constructors
 - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...

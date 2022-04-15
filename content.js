@@ -1,7 +1,7 @@
 // FRONTEND
 document.addEventListener('DOMContentLoaded', () => {
     const getDataMessage = {
-        method: "get-data",
+        method: 'get-data',
         url: this.location.href
     };
     chrome.runtime.sendMessage(getDataMessage, (getDataResponse) => {
@@ -9,8 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-window.addEventListener("mouseup", function (event) {
-    var text = "";
+window.addEventListener('mouseup', (event) => {
+    var text = '';
     if (isTextSelectionRange()) {
         text = window.getSelection().toString();
 
@@ -20,20 +20,20 @@ window.addEventListener("mouseup", function (event) {
         text = expandSelectionToWhitespace(text, document.body.innerText);
     }
     // idk what this does...
-    // else if (window.getSelection() && window.getSelection().type != "Control") {
+    // else if (window.getSelection() && window.getSelection().type != 'Control') {
     //     text = window.getSelection().addRange(text.length);
     // }
 
     // sending message to background.js
     if (text.length > 0) {
         var isHighlightingMessage = {
-            method: "is-highlighting",
+            method: 'is-highlighting',
             url: this.location.href
         };
         chrome.runtime.sendMessage(isHighlightingMessage, (isHighlightingResponse) => {
             if (isHighlightingResponse.isHighlighting) {
                 var persistHighlightMessage = {
-                    method: "persist-highlight",
+                    method: 'persist-highlight',
                     selection: text
                 };
                 chrome.runtime.sendMessage(persistHighlightMessage, (persistHighlightResponse) => {
@@ -47,7 +47,7 @@ window.addEventListener("mouseup", function (event) {
 });
 
 // listen for messages from background.js
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.method === 'highlight-data-updated') {
         document.body.innerHTML = buildHighlightedHtml(message.data);
         // return true;

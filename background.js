@@ -13,12 +13,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 // listen for messages from content.js
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    // console.log(sender.tab ? "from a content script: " + sender.tab.url : "from the extension");
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // console.log(sender.tab ? 'from a content script: ' + sender.tab.url : 'from the extension');
 
     // HANDLE MESSAGES FROM CONTENT ---------------------------------------
     if (message.method === 'get-data') {
-        chrome.storage.local.get([message.url], function (result) {
+        chrome.storage.local.get([message.url], (result) => {
             result[message.url] ??= { on: undefined, highlights: [] };
             var urlPackage = result[message.url];
             sendResponse({ data: urlPackage });
@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     }
 
     if (message.method === 'is-highlighting') {
-        chrome.storage.local.get([message.url], function (result) {
+        chrome.storage.local.get([message.url], (result) => {
             result[message.url] ??= {
                 on: undefined,
                 highlights: [],
@@ -40,12 +40,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         return true;
     }
 
-    if (message.method === "persist-highlight") {
+    if (message.method === 'persist-highlight') {
         const url = sender.tab.url;
         const newSelection = message.selection;
 
         // add to local storage
-        chrome.storage.local.get([url], function (result) {
+        chrome.storage.local.get([url], (result) => {
             result[url] ??= {
                 on: true,
                 highlights: [],
@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
     // HANDLE MESSAGES FROM POPUP -----------------------------------------
     if (message.method === 'onoff-switch') {
-        chrome.storage.local.get([message.url], function (result) {
+        chrome.storage.local.get([message.url], (result) => {
             result[message.url] ??= {
                 on: undefined,
                 highlights: [],
@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         const url = message.url;
 
         // add to local storage
-        chrome.storage.local.get([url], function (result) {
+        chrome.storage.local.get([url], (result) => {
             result[url] ??= {
                 on: true,
                 highlights: [],
@@ -115,7 +115,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         const url = message.url;
         const tabId = message.tabId;
 
-        chrome.storage.local.get([url], function (result) {
+        chrome.storage.local.get([url], (result) => {
             result[url] ??= {
                 on: undefined,
                 highlights: [],
@@ -139,7 +139,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 });
 
 // listen for changes to local storage
-chrome.storage.onChanged.addListener(function (changes, namespace) {
+chrome.storage.onChanged.addListener((changes, namespace) => {
     for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
         // console.log(`key: ${key}`);
         // console.log(`Local storage key: ${key}, old value:\n${JSON.stringify(oldValue, null, 2)}`);
