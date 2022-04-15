@@ -58,31 +58,83 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 // HELPERS ------------------------------------------------------------
 function buildHighlightedHtml(data) {
     var newHtml = document.body.innerHTML;
-    const highlightStyle = `'
-                color: ${data.highlightLabelColor};
-                background-color: ${data.highlightColor};
-                border-radius: 5px;
-                padding: 2.5px 1.5px;
-                margin: 0px -1.5px;
-                '`;
-    data.highlights.forEach((highlight) => {
-        const hl = `<span style=${highlightStyle}>${highlight}</span>`;
-        newHtml = newHtml.replace(new RegExp(highlight, 'g'), hl);
-    });
-    return newHtml;
+    if (data && data.highlights) {
+        const highlightStyle = `'color: ${data.highlightLabelColor};background-color: ${data.highlightColor};border-radius: 5px;padding: 2.5px 1.5px;margin: 0px -1.5px;
+        '`;
+        data.highlights.forEach((highlight) => {
+            const highlightHtml = getHtmlForHighlight(highlight);
+            const toBeHighlighted = highlightHtml.split(/<[^>]+>\s+(?=<)|<[^>]+>/);
+
+            for (let i = 0; i < toBeHighlighted.length; i++) {
+                const highlightPiece = toBeHighlighted[i];
+                if (highlightPiece.length > 0) {
+                    const hl = `<span style=${highlightStyle}>${highlightPiece}</span>`;
+                    // TODO have some sort of bounding index check to not just replace every occurance
+                    newHtml = newHtml.replace(new RegExp(highlightPiece, 'g'), hl);
+                }
+            }
+        });
+        return newHtml;
+    }
+}
+
+function getHtmlForHighlight(highlight) {
+    const text = document.body.innerText;
+    const html = document.body.innerHTML;
+    const charsInHiighlight = highlight.length;
+
+    const textStartIndex = text.indexOf(highlight);
+    const textEndIndex = textStartIndex + charsInHiighlight;
+
+    const offset = 3;
+    // TODO this is messy and doesn't work when the highlight begins with a common substring
+    const firstCharsOfHighlight = highlight.slice(0, offset + 1);
+    const htmlStartIndex = html.indexOf(firstCharsOfHighlight);
+    const htmlEndIndex = getHtmlEndIndex(html, htmlStartIndex, highlight, charsInHiighlight);
+
+    const textHighlight = text.slice(textStartIndex, textEndIndex + 1);
+    const htmlHighlight = html.slice(htmlStartIndex, htmlEndIndex + 1);
+
+    return htmlHighlight;
+}
+
+function getHtmlEndIndex(html, htmlStartIndex, highlight, charsInHiighlight) {
+    var validCharCount = 0;
+    var i;
+    for (i = htmlStartIndex; i < html.length; i++) {
+        var htmlChar = html.charAt(i);
+
+        // if inside of an html tag
+        if (htmlChar === '<') {
+            while (htmlChar !== '>') {
+                htmlChar = html.charAt(++i);
+            }
+        }
+        else { // in the regular text
+            if (htmlChar === highlight.charAt(validCharCount)) {
+                validCharCount++;
+            }
+        }
+
+        // if we've accounted for all the highlight chars in the html
+        if (charsInHiighlight === validCharCount) {
+            break;
+        }
+    }
+    return i;
 }
 
 function expandSelectionToWhitespace(text, html) {
-    var startIndex = document.body.innerText.indexOf(text);
+    var startIndex = html.indexOf(text);
     var endIndex = startIndex + text.length;
     const isSpaceRegex = new RegExp(/\s/, 'g');
-    while (!isSpaceRegex.test(document.body.innerText.charAt(startIndex)) && startIndex > -1) {
+    while (!isSpaceRegex.test(html.charAt(startIndex)) && startIndex > -1) {
         startIndex--;
     }
-    while (!isSpaceRegex.test(document.body.innerText.charAt(endIndex)) && endIndex < document.body.innerText.length) {
+    while (!isSpaceRegex.test(html.charAt(endIndex)) && endIndex < html.length) {
         endIndex++;
     }
-    text = document.body.innerText.substring(startIndex, endIndex);
+    text = html.substring(startIndex, endIndex);
     return text.trim();
 }
 
