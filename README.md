@@ -14,22 +14,17 @@
 4. Find the extension in the list of extensions in the browser
 
 ## TODOs (for version 1)
-- adding a new highlight doesn't play well with existing span stuff </>
-- why do the highlights disappear sometimes?
-- clear up hacky if statements about if it's boolean/null/undefined by moving the check/emptying to content.js (send the whole packet)
-- is the ??= stuff even necessary?
-- constructor function to return an empty default url data packet
-    - https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/Basics#introducing_constructors
-- how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
-- edit manifest to allow all sites
-- selecting text within an input box triggers the extension...
-    - maybe something with selection type RANGE/CONTROL/INPUT?
-    - some sort of confirmation dialog or something?
-- expanding regex wrong?
+- add unit tests somehow? https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
+  - expandSelectionToWhitespace() bugs?
     - text doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
     - do something with indexes
-- beef up readme with how to use it, icon attribution link, "why" behind the project, etc.
-- add unit tests somehow? https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
+  - tests for getHtmlForHighlight()
+  - tests for getHtmlEndIndex()
+- adding a new highlight doesn't play well with existing span stuff </>
+- why do the highlights disappear sometimes?
+- edit manifest to allow all sites
+  - selecting text within an input box triggers the extension... maybe something with selection type RANGE/CONTROL/INPUT?
+- how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
 
 ## ROADMAP (for version 2)
 - expand info in highlight data: text, color, location, note, highlight type (underline, regular)

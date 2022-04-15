@@ -49,9 +49,14 @@ window.addEventListener('mouseup', (event) => {
 // listen for messages from background.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.method === 'highlight-data-updated') {
-        document.body.innerHTML = buildHighlightedHtml(message.data);
-        // return true;
-        sendResponse({ response: 'thanks!' });
+        if (message.data && message.data.on) {
+            document.body.innerHTML = buildHighlightedHtml(message.data);
+            // return true;
+            sendResponse({ response: 'thanks!' });
+        } else {
+            // it's off, so  don't add any highlights and just refresh it to visually remove them
+            window.location.reload();
+        }
     }
 });
 
@@ -87,7 +92,7 @@ function getHtmlForHighlight(highlight) {
     const textEndIndex = textStartIndex + charsInHiighlight;
 
     const offset = 3;
-    // TODO this is messy and doesn't work when the highlight begins with a common substring
+    // TODO doesn't work when the highlight begins with a common substring?
     const firstCharsOfHighlight = highlight.slice(0, offset + 1);
     const htmlStartIndex = html.indexOf(firstCharsOfHighlight);
     const htmlEndIndex = getHtmlEndIndex(html, htmlStartIndex, highlight, charsInHiighlight);

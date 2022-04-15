@@ -28,12 +28,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if (message.method === 'is-highlighting') {
         chrome.storage.local.get([message.url], (result) => {
-            result[message.url] ??= {
-                on: undefined,
-                highlights: [],
-                highlightColor: '#e7cd97',
-                highlightLabelColor: '#000000'
-            };
+            result[message.url] ??= initializeDefaultData(undefined);
             var urlPackage = result[message.url];
             sendResponse({ isHighlighting: urlPackage.on ? urlPackage.on : false });
         });
@@ -46,12 +41,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // add to local storage
         chrome.storage.local.get([url], (result) => {
-            result[url] ??= {
-                on: true,
-                highlights: [],
-                highlightColor: '#e7cd97',
-                highlightLabelColor: '#000000'
-            };
+            result[url] ??= initializeDefaultData(undefined);
             var highlightsFromStorage = result[url].highlights;
 
             // add if highlight isn't there
@@ -74,12 +64,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // HANDLE MESSAGES FROM POPUP -----------------------------------------
     if (message.method === 'onoff-switch') {
         chrome.storage.local.get([message.url], (result) => {
-            result[message.url] ??= {
-                on: undefined,
-                highlights: [],
-                highlightColor: '#e7cd97',
-                highlightLabelColor: '#000000'
-            };
+            result[message.url] ??= initializeDefaultData(undefined);
             var urlPackage = result[message.url];
             urlPackage.on = message.value;
             chrome.storage.local.set({ [message.url]: urlPackage }, () => {
@@ -94,13 +79,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // add to local storage
         chrome.storage.local.get([url], (result) => {
-            result[url] ??= {
-                on: true,
-                highlights: [],
-                highlightColor: '#e7cd97',
-                highlightLabelColor: '#000000'
-            };
-
+            result[url] ??= initializeDefaultData(true);
             result[url].highlightColor = message.highlightColor;
             result[url].highlightLabelColor = message.highlightLabelColor;
 
@@ -116,12 +95,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const tabId = message.tabId;
 
         chrome.storage.local.get([url], (result) => {
-            result[url] ??= {
-                on: undefined,
-                highlights: [],
-                highlightColor: '#e7cd97',
-                highlightLabelColor: '#000000'
-            };
+            result[url] ??= initializeDefaultData(undefined);
             result[url].highlights = [];
             chrome.storage.local.set({ [url]: result[url] }, () => {
                 sendResponse({ value: 'cleared highlights for url!'});
@@ -146,11 +120,6 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         // console.log(`Local storage key: ${key}, new value:\n${JSON.stringify(newValue, null, 2)}`);
         // console.log('diff of old state and new state:', diff(oldValue, newValue));
 
-        // TODO hacky fix... maybe move this check to the 'highlight-data-updated' listener in content.js?
-        if (newValue && !newValue.on) {
-            newValue.highlights = [];
-        }
-
         // send new value to frontend to do the highlighting
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             var dataUpdatedMessage = {
@@ -172,6 +141,15 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 });
 
 // HELPERS ---------------------------------------------------------------
+function initializeDefaultData(isOn) {
+    return {
+        on: isOn,
+        highlights: [],
+        highlightColor: '#e7cd97',
+        highlightLabelColor: '#000000'
+    };
+}
+
 // https://stackoverflow.com/a/8432188
 function diff(obj1, obj2) {
     const result = {};
@@ -201,11 +179,4 @@ function isDoneLoading(status) {
 
 function isValidHttp(url) {
     return /^http/.test(url);
-}
-
-function addValueToKey(key, value) {
-    highlights[key] ??= []; // logical nullish only assigns if x is nullish
-    if (!highlights[key].includes(value)) {
-        highlights[key].push(value);
-    }
 }
