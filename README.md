@@ -21,9 +21,9 @@
   - tests for getHtmlForHighlight()
   - tests for getHtmlEndIndex()
 - adding a new highlight doesn't play well with existing span stuff </>
+  - only send a diff on 'highlight-data-updated'? or keep track of current highlights in content.js and then only create highlighting for the new ones because the old ones will still be there?
 - why do the highlights disappear sometimes?
-- edit manifest to allow all sites
-  - selecting text within an input box triggers the extension... maybe something with selection type RANGE/CONTROL/INPUT?
+- selecting text within an input box triggers the extension... maybe something with selection type RANGE/CONTROL/INPUT?
 - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
 
 ## ROADMAP (for version 2)

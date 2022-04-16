@@ -24,6 +24,6 @@
         "tabs"
     ],
     "host_permissions": [
-        "https://text.npr.org/*"
+        "*://*/*"
     ]
 }

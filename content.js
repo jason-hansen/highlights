@@ -52,10 +52,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.data && message.data.on) {
             document.body.innerHTML = buildHighlightedHtml(message.data);
             // return true;
-            sendResponse({ response: 'thanks!' });
+            sendResponse({ response: 'hl is on' });
         } else {
             // it's off, so  don't add any highlights and just refresh it to visually remove them
             window.location.reload();
+            sendResponse({ response: 'hl is off' });
         }
     }
 });
