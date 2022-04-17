@@ -1,4 +1,8 @@
 // FRONTEND
+const debug = false;
+debug ? console.log('Debug printing enabled') : null;
+debug ? console.log('') : null;
+
 document.addEventListener('DOMContentLoaded', () => {
     const getDataMessage = {
         method: 'get-data',
@@ -10,40 +14,35 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('mouseup', (event) => {
-    var text = '';
-    if (isTextSelectionRange()) {
-        text = window.getSelection().toString();
-
-        if (!new RegExp(/[a-zA-Z0-9]/, 'g').test(text)) {
-            return;
-        }
-        text = expandSelectionToWhitespace(text, document.body.innerText);
+    if (!isTextSelectionRange() || !isTextSelection()) {
+        return;
     }
-    // idk what this does...
-    // else if (window.getSelection() && window.getSelection().type != 'Control') {
-    //     text = window.getSelection().addRange(text.length);
-    // }
+
+    var text = window.getSelection().toString();
+    if (!new RegExp(/[a-zA-Z0-9]/, 'g').test(text)) {
+        return;
+    }
+    text = expandSelectionToWhitespace(text, document.body.innerText);
 
     // sending message to background.js
-    if (text.length > 0) {
-        var isHighlightingMessage = {
-            method: 'is-highlighting',
-            url: this.location.href
-        };
-        chrome.runtime.sendMessage(isHighlightingMessage, (isHighlightingResponse) => {
-            if (isHighlightingResponse.isHighlighting) {
-                var persistHighlightMessage = {
-                    method: 'persist-highlight',
-                    selection: text
-                };
-                chrome.runtime.sendMessage(persistHighlightMessage, (persistHighlightResponse) => {
-                    // console.log('persistHighlightResponse:', persistHighlightResponse);
-                });
-            } else {
-                return;
-            }
-        });
-    }
+    var isHighlightingMessage = {
+        method: 'is-highlighting',
+        url: this.location.href
+    };
+    chrome.runtime.sendMessage(isHighlightingMessage, (isHighlightingResponse) => {
+        if (isHighlightingResponse.isHighlighting) {
+            var persistHighlightMessage = {
+                method: 'persist-highlight',
+                selection: text
+            };
+            chrome.runtime.sendMessage(persistHighlightMessage, (persistHighlightResponse) => {
+                debug ? console.log('persistHighlightResponse:', persistHighlightResponse) : null;
+            });
+        } else {
+            debug ? console.log('Highlighting turned off, not sending highlighted text:' + text) : null;
+            return;
+        }
+    });
 });
 
 // listen for messages from background.js
@@ -68,7 +67,7 @@ function buildHighlightedHtml(data) {
         const highlightStyle = `'color: ${data.highlightLabelColor};background-color: ${data.highlightColor};border-radius: 5px;padding: 2.5px 1.5px;margin: 0px -1.5px;
         '`;
         data.highlights.forEach((highlight) => {
-            const highlightHtml = getHtmlForHighlight(highlight);
+            const highlightHtml = getHtmlForHighlight(highlight, document.body.innerText, document.body.innerHTML);
             const toBeHighlighted = highlightHtml.split(/<[^>]+>\s+(?=<)|<[^>]+>/);
 
             for (let i = 0; i < toBeHighlighted.length; i++) {
@@ -84,9 +83,7 @@ function buildHighlightedHtml(data) {
     }
 }
 
-function getHtmlForHighlight(highlight) {
-    const text = document.body.innerText;
-    const html = document.body.innerHTML;
+function getHtmlForHighlight(highlight, text, html) {
     const charsInHiighlight = highlight.length;
 
     const textStartIndex = text.indexOf(highlight);
@@ -144,6 +141,33 @@ function expandSelectionToWhitespace(text, html) {
     return text.trim();
 }
 
+function isTextSelection() {
+    var parentElement = getSelectionParentElement();
+    for (let i = 0; i < parentElement.children.length; i++) {
+        const child = parentElement.children[i];
+        if (child['tagName'] && (child['tagName'].toUpperCase() === 'INPUT' || child['tagName'].toUpperCase() === 'TEXTAREA')) {
+            return false;
+        }
+    }
+    return true;
+}
+
 function isTextSelectionRange() {
     return window.getSelection() && window.getSelection().type == 'Range';
+}
+
+function getSelectionParentElement() {
+    var parentEl = null, sel;
+    if (window.getSelection) {
+        sel = window.getSelection();
+        if (sel.rangeCount) {
+            parentEl = sel.getRangeAt(0).commonAncestorContainer;
+            if (parentEl.nodeType != 1) {
+                parentEl = parentEl.parentNode;
+            }
+        }
+    } else if ((sel = document.selection) && sel.type != "Control") {
+        parentEl = sel.createRange().parentElement();
+    }
+    return parentEl;
 }

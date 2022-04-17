@@ -14,16 +14,11 @@
 4. Find the extension in the list of extensions in the browser
 
 ## TODOs (for version 1)
-- add unit tests somehow? https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
-  - expandSelectionToWhitespace() bugs?
-    - text doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
-    - do something with indexes
-  - tests for getHtmlForHighlight()
-  - tests for getHtmlEndIndex()
 - adding a new highlight doesn't play well with existing span stuff </>
-  - only send a diff on 'highlight-data-updated'? or keep track of current highlights in content.js and then only create highlighting for the new ones because the old ones will still be there?
-- why do the highlights disappear sometimes?
-- selecting text within an input box triggers the extension... maybe something with selection type RANGE/CONTROL/INPUT?
+  - only send a the diff in background.js that I've already calculated for 'highlight-data-updated'
+- expandSelectionToWhitespace bugs
+ - text doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
+ - do something with indexes
 - how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
 
 ## ROADMAP (for version 2)
@@ -37,6 +32,7 @@
 - keep track of highlights in a stack to undo/redo highlights
     - maybe this just comes with pushing to the array?
 - hotkey to toggle on/off switch
+- test suite https://stackoverflow.com/questions/14798528/testing-browser-extensions/17370531#17370531
 
 ## DATA
 ```
