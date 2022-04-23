@@ -1,4 +1,8 @@
 // BACKEND
+var debug = true;
+debug ? console.log('Debug printing enabled: background.js') : null;
+// debug ? console.log('') : null;
+
 const highlights = {};
 
 // run the content.js script when the page is loaded
@@ -118,7 +122,7 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
         // console.log(`key: ${key}`);
         // console.log(`Local storage key: ${key}, old value:\n${JSON.stringify(oldValue, null, 2)}`);
         // console.log(`Local storage key: ${key}, new value:\n${JSON.stringify(newValue, null, 2)}`);
-        console.log('diff of old state and new state:', diff(oldValue, newValue));
+        debug ? console.log('diff of old state and new state:', diff(oldValue, newValue)) : null;
 
         // send new value to frontend to do the highlighting
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

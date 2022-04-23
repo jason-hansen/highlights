@@ -1,7 +1,7 @@
 // FRONTEND
-const debug = false;
-debug ? console.log('Debug printing enabled') : null;
-debug ? console.log('') : null;
+var debug = true;
+debug ? console.log('Debug printing enabled: content.js') : null;
+// debug ? console.log('') : null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const getDataMessage = {
@@ -18,11 +18,13 @@ window.addEventListener('mouseup', (event) => {
         return;
     }
 
-    var text = window.getSelection().toString();
-    if (!new RegExp(/[a-zA-Z0-9]/, 'g').test(text)) {
+    var highlight = window.getSelection().toString();
+    if (!new RegExp(/[a-zA-Z0-9]/, 'g').test(highlight)) {
         return;
     }
-    text = expandSelectionToWhitespace(text, document.body.innerText);
+    highlight = expandSelectionToWhitespace(highlight, document.body.innerText);
+    const highlightHtml = getHtmlForHighlight(highlight, document.body.innerText, document.body.innerHTML);
+    const parentElement = getSelectionParentElement();
 
     // sending message to background.js
     var isHighlightingMessage = {
@@ -33,13 +35,13 @@ window.addEventListener('mouseup', (event) => {
         if (isHighlightingResponse.isHighlighting) {
             var persistHighlightMessage = {
                 method: 'persist-highlight',
-                selection: text
+                selection: highlight
             };
             chrome.runtime.sendMessage(persistHighlightMessage, (persistHighlightResponse) => {
                 debug ? console.log('persistHighlightResponse:', persistHighlightResponse) : null;
             });
         } else {
-            debug ? console.log('Highlighting turned off, not sending highlighted text:' + text) : null;
+            debug ? console.log('Highlighting turned off, not sending highlighted text:' + highlight) : null;
             return;
         }
     });
@@ -48,6 +50,7 @@ window.addEventListener('mouseup', (event) => {
 // listen for messages from background.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.method === 'highlight-data-updated') {
+        debug ? console.log('highlight-data-updated: ' + JSON.stringify(message.data)) : null;
         if (message.data && message.data.on) {
             document.body.innerHTML = buildHighlightedHtml(message.data);
             // return true;
@@ -89,8 +92,8 @@ function getHtmlForHighlight(highlight, text, html) {
     const textStartIndex = text.indexOf(highlight);
     const textEndIndex = textStartIndex + charsInHiighlight;
 
+    // TODO this offset stuff is bc html.indexOf(highlight) doesn't work if it's highlighting something containing an html tag... but it doesn't really work well
     const offset = 3;
-    // TODO doesn't work when the highlight begins with a common substring?
     const firstCharsOfHighlight = highlight.slice(0, offset + 1);
     const htmlStartIndex = html.indexOf(firstCharsOfHighlight);
     const htmlEndIndex = getHtmlEndIndex(html, htmlStartIndex, highlight, charsInHiighlight);

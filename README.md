@@ -16,10 +16,10 @@
 ## TODOs (for version 1)
 - adding a new highlight doesn't play well with existing span stuff </>
   - only send a the diff in background.js that I've already calculated for 'highlight-data-updated'
-- expandSelectionToWhitespace bugs
- - text doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
- - do something with indexes
-- how come the on/off 'defaults' to on and then slides to off if it's false? it should probably just 'default' to false...
+- getHtmlForHighlight see TODO
+- expandSelectionToWhitespace doesn't work on something like: 'letter "Z"' bc it expands to 'letter "Z" have'
+  - make the regex just expand until it's not a char instead of is a white space?
+  - do something with indexes?
 
 ## ROADMAP (for version 2)
 - expand info in highlight data: text, color, location, note, highlight type (underline, regular)

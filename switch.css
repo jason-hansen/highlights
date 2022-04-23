@@ -15,6 +15,7 @@
 }
 
 .switch input {
+    /* alters the underlying  */
     opacity: 0;
     width: 0;
     height: 0;
@@ -60,4 +61,8 @@ input:checked+.slider:before {
 
 .slider.round:before {
     border-radius: 50%;
+}
+
+input:checked+.slider.round:before {
+    background-color: var(--darker);
 }

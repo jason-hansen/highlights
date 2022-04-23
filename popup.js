@@ -1,3 +1,7 @@
+var debug = true;
+debug ? console.log('Debug printing enabled: popup.js') : null;
+// debug ? console.log('') : null;
+
 document.addEventListener('DOMContentLoaded', () => {
     const onOffSwitch = document.getElementById('onoff-switch');
 
@@ -16,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             url: tabs[0].url
         };
         chrome.runtime.sendMessage(getDataMessage, (getDataResponse) => {
+            debug ? console.log('getDataResponse: ' + JSON.stringify(getDataResponse)) : null;
             // set on/off switch
             const isHighlighting = getDataResponse.data.on ? true : false;
             onOffSwitch.checked = isHighlighting;
@@ -91,7 +96,7 @@ function clearUrlHighlights(url) {
     };
     chrome.runtime.sendMessage(clearHighlightsForUrlMessage, (clearHighlightsForUrlMessage) => {
         window.location.reload(); // TODO this reloads the popup, not the tab...
-        console.log(clearHighlightsForUrlMessage);
+        debug ? console.log(clearHighlightsForUrlMessage) : null;
     });
 }
 
@@ -101,7 +106,7 @@ function clearAllInfo() {
     };
     chrome.runtime.sendMessage(clearAllInfoMessage, (clearAllInfoResponse) => {
         window.location.reload(); // TODO this reloads the popup, not the tab...
-        console.log(clearAllInfoResponse);
+        debug ? console.log(clearAllInfoResponse) : null;
     });
 }
 
